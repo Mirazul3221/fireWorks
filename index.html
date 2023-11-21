@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fireworks creation</title>
+</head>
+
+<body>
+    <canvas id="canvas"></canvas>
+
+
+
+    <script>
+        var canvas, w, h, ctx;
+        canvas = document.getElementById("canvas");
+        ctx = canvas.getContext("2d");
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+
+        window.addEventListener("resize", () => [canvas.width, canvas.height] = [w, h], false);
+
+        class FireWorrks {
+            constructor() {
+                this.x = Math.random() * w;
+                this.y = h;
+                this.sx = Math.random() * 3 - 1.5;
+                this.sy = Math.random() * -3 - 3;
+                this.size = Math.random() * 2 + 1;
+                // this.colorVal = Math.round(0xffffff * Math.random());
+                // [this.r, this.g, this.b] = [colorVal >> 16, (colorVal >> 8) & 255, colorVal & 255];
+                this.shouldExpold = false;
+            }
+
+            update() {
+                this.shouldExpold = this.sy >= -2 || this.y <= 100 || this.x <= 0 || this.x >= w;
+                this.sy += 0.01;
+                [this.x, this.y] = [this.x + this.sx, this.y + this.sy]
+            }
+
+            drow() {
+                // ctx.fillstyle = `rgb(${this.r},${this.g},${this.b})`;
+                ctx.fillStyle = "red";
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        class Particals {
+            constructor(x, y) {
+                [
+                    this.x, this.y, this.sx, this.sy
+                ] = [
+                        x, y, Math.random() * 3 - 1.5, Math.random() * 3 - 1.5
+                    ];
+                this.size = Math.random() * 2 + 1;
+                this.life = 100;
+            }
+
+            update() {
+                [this.x, this.y, this.life] = [
+                    this.x + this.sx, this.y + this.sy, this.life - 1
+                ]
+            }
+
+            drow() {
+                // ctx.fillstyle = `rgba(${this.r},${this.g},${this.b})`;
+                ctx.fillStyle = "red";
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+        }
+
+        const fireWorks = [new FireWorrks()];
+        const particales = [];
+        console.log(particales)
+        function animate() {
+            ctx.fillstyle = 'rgba(0, 0, 0, 0.2)';
+            ctx.clearRect(0, 0, w, h);
+            Math.random() < 0.25 && fireWorks.push(new FireWorrks());
+            fireWorks.forEach((fireWork, i) => {
+                fireWork.drow();
+                fireWork.update();
+                if (fireWork.shouldExpold) {
+                    for (let j = 0; j < 50; j++) {
+                        particales.push(new Particals(fireWork.x, fireWork.y));
+                        fireWorks.splice(i, 1)
+
+                    }
+                }
+            });
+
+            particales.forEach((particle, i) => {
+                particle.update();
+                particle.drow();
+                if (particle.life <= 0) particales.splice(i, 1)
+            })
+
+            requestAnimationFrame(animate);
+        }
+
+        animate()
+    </script>
+</body>
+
+</html>
